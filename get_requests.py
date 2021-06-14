@@ -2,6 +2,7 @@ from sys import displayhook
 import requests
 import xml.etree.ElementTree as ET
 from parametros import gho_ind
+from datetime import datetime
 
 # Se utilizó código de respuestas del siguiente link: https://stackoverflow.com/questions/29810572/save-xml-response-from-get-call-using-python/29810645
 
@@ -28,7 +29,7 @@ def get_country_data(country):
     for child in root:
 
         gho = child.find('GHO').text
-        if gho in gho_ind:
+        if gho in gho_ind or "BMI" in gho:
             country = child.find('COUNTRY').text
             sex = child.find('SEX').text
             year = int(child.find('YEAR').text)
@@ -59,7 +60,7 @@ def get_all_data(countries):
         root = ET.fromstring(r.text)
         for child in root:
             gho = child.find('GHO').text
-            if gho in gho_ind:
+            if gho in gho_ind or "BMI" in gho:
                 country = child.find('COUNTRY').text
                 sex = child.find('SEX').text
                 year = int(child.find('YEAR').text)
@@ -82,4 +83,22 @@ def get_all_data(countries):
                 rows.append(child_attributes)
                 print(child_attributes)
     return rows
+
+def filter_max_year(data):
+    max_year = 0
+    for row in data:
+        if row[3] > max_year:
+            max_year = row[3]
+    data_max = filter(lambda row: row[3] == max_year, data)
+    return list(data_max)
+
+
+def filter_max_year_bmi(data):
+    max_year = 0
+    for row in data:
+        if int(row[3]) > max_year and "Mean BMI" in row[0]:
+            max_year = row[3]
+    data_max = filter(lambda row: int(row[3]) == max_year, data)
+    return list(data_max)
+
         
